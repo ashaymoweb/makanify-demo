@@ -17,6 +17,10 @@ function formatName(contact: Contact) {
   return [contact.firstName, contact.lastName].filter(Boolean).join(" ");
 }
 
+function formatCell(value?: string) {
+  return value?.trim() || "—";
+}
+
 function AddContactModal({
   open,
   onClose,
@@ -31,6 +35,11 @@ function AddContactModal({
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
   const [pinCode, setPinCode] = useState("");
+  const [addressLine1, setAddressLine1] = useState("");
+  const [addressLine2, setAddressLine2] = useState("");
+  const [companyName, setCompanyName] = useState("");
+  const [workEmail, setWorkEmail] = useState("");
+  const [workPhoneNumber, setWorkPhoneNumber] = useState("");
   const [gender, setGender] = useState<ContactGender>("Male");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
@@ -42,6 +51,11 @@ function AddContactModal({
       setEmail("");
       setPhone("");
       setPinCode("");
+      setAddressLine1("");
+      setAddressLine2("");
+      setCompanyName("");
+      setWorkEmail("");
+      setWorkPhoneNumber("");
       setGender("Male");
       setError("");
     }
@@ -69,6 +83,11 @@ function AddContactModal({
         phone: [{ countryCode: 91, number: Number(digits), isPrimary: true }],
         pinCode: Number(pinCode),
         gender,
+        addressLine1: addressLine1.trim() || undefined,
+        addressLine2: addressLine2.trim() || undefined,
+        companyName: companyName.trim() || undefined,
+        workEmail: workEmail.trim() || undefined,
+        workPhoneNumber: workPhoneNumber.trim() || undefined,
       });
       onCreated();
       onClose();
@@ -81,7 +100,7 @@ function AddContactModal({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
-      <div className="w-full max-w-md rounded-lg border border-border bg-card p-6 shadow-lg">
+      <div className="max-h-[90vh] w-full max-w-lg overflow-y-auto rounded-lg border border-border bg-card p-6 shadow-lg">
         <h2 className="text-lg font-semibold">Add Contact</h2>
         <p className="mt-1 text-sm text-muted">
           Creates a contact via POST /contact
@@ -164,6 +183,60 @@ function AddContactModal({
               ))}
             </div>
           </fieldset>
+
+          <div className="space-y-1">
+            <label className="text-sm font-medium">Address line 1</label>
+            <textarea
+              rows={2}
+              value={addressLine1}
+              onChange={(e) => setAddressLine1(e.target.value)}
+              placeholder="Street, building, area"
+              className="w-full resize-none rounded-md border border-border px-3 py-2 text-sm"
+            />
+          </div>
+
+          <div className="space-y-1">
+            <label className="text-sm font-medium">Address line 2</label>
+            <textarea
+              rows={2}
+              value={addressLine2}
+              onChange={(e) => setAddressLine2(e.target.value)}
+              placeholder="Landmark, suite, floor (optional)"
+              className="w-full resize-none rounded-md border border-border px-3 py-2 text-sm"
+            />
+          </div>
+
+          <div className="space-y-1">
+            <label className="text-sm font-medium">Company name</label>
+            <input
+              value={companyName}
+              onChange={(e) => setCompanyName(e.target.value)}
+              placeholder="Acme Realty"
+              className="w-full rounded-md border border-border px-3 py-2 text-sm"
+            />
+          </div>
+
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+            <div className="space-y-1">
+              <label className="text-sm font-medium">Work email</label>
+              <input
+                type="email"
+                value={workEmail}
+                onChange={(e) => setWorkEmail(e.target.value)}
+                placeholder="work@company.com"
+                className="w-full rounded-md border border-border px-3 py-2 text-sm"
+              />
+            </div>
+            <div className="space-y-1">
+              <label className="text-sm font-medium">Work phone number</label>
+              <input
+                value={workPhoneNumber}
+                onChange={(e) => setWorkPhoneNumber(e.target.value)}
+                placeholder="9876543210"
+                className="w-full rounded-md border border-border px-3 py-2 text-sm"
+              />
+            </div>
+          </div>
 
           {error && (
             <p className="rounded-md bg-red-50 px-3 py-2 text-sm text-red-600">
@@ -256,7 +329,7 @@ function ContactsContent() {
         </div>
       </header>
 
-      <main className="mx-auto max-w-6xl px-4 py-8">
+      <main className="mx-auto max-w-[90rem] px-4 py-8">
         <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div>
             <h1 className="text-2xl font-semibold">Contacts</h1>
@@ -306,7 +379,12 @@ function ContactsContent() {
                     <th className="px-4 py-3 font-medium">Name</th>
                     <th className="px-4 py-3 font-medium">Email</th>
                     <th className="px-4 py-3 font-medium">Phone</th>
+                    <th className="px-4 py-3 font-medium">Gender</th>
+                    <th className="px-4 py-3 font-medium">Address line 1</th>
+                    <th className="px-4 py-3 font-medium">Address line 2</th>
                     <th className="px-4 py-3 font-medium">Company</th>
+                    <th className="px-4 py-3 font-medium">Work email</th>
+                    <th className="px-4 py-3 font-medium">Work phone</th>
                     <th className="px-4 py-3 font-medium">Updated</th>
                   </tr>
                 </thead>
@@ -317,9 +395,20 @@ function ContactsContent() {
                       className="border-b border-border last:border-0 hover:bg-background/60"
                     >
                       <td className="px-4 py-3 font-medium">{formatName(contact)}</td>
-                      <td className="px-4 py-3 text-muted">{contact.email || "—"}</td>
+                      <td className="px-4 py-3 text-muted">{formatCell(contact.email)}</td>
                       <td className="px-4 py-3 text-muted">{formatPhone(contact.phone)}</td>
-                      <td className="px-4 py-3 text-muted">{contact.companyName || "—"}</td>
+                      <td className="px-4 py-3 text-muted">{formatCell(contact.gender)}</td>
+                      <td className="max-w-[12rem] px-4 py-3 text-muted">
+                        <span className="line-clamp-2">{formatCell(contact.addressLine1)}</span>
+                      </td>
+                      <td className="max-w-[12rem] px-4 py-3 text-muted">
+                        <span className="line-clamp-2">{formatCell(contact.addressLine2)}</span>
+                      </td>
+                      <td className="px-4 py-3 text-muted">{formatCell(contact.companyName)}</td>
+                      <td className="px-4 py-3 text-muted">{formatCell(contact.workEmail)}</td>
+                      <td className="px-4 py-3 text-muted">
+                        {formatCell(contact.workPhoneNumber)}
+                      </td>
                       <td className="px-4 py-3 text-muted">
                         {contact.updatedAt
                           ? new Date(contact.updatedAt).toLocaleDateString()

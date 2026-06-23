@@ -46,8 +46,12 @@ export interface Contact {
   email?: string;
   phone?: ContactPhone[];
   gender?: ContactGender;
+  addressLine1?: string;
+  addressLine2?: string;
   companyName?: string;
   position?: string;
+  workEmail?: string;
+  workPhoneNumber?: string;
   createdAt?: string;
   updatedAt?: string;
 }
