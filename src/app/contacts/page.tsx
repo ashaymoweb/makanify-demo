@@ -5,7 +5,7 @@ import { AuthGuard } from "@/components/AuthGuard";
 import { Logo } from "@/components/Logo";
 import { useAuth } from "@/context/AuthContext";
 import { ApiError, createContact, getContacts } from "@/lib/api";
-import type { Contact } from "@/lib/types";
+import type { Contact, ContactGender } from "@/lib/types";
 
 function formatPhone(phone?: Contact["phone"]) {
   if (!phone?.length) return "—";
@@ -31,6 +31,7 @@ function AddContactModal({
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
   const [pinCode, setPinCode] = useState("");
+  const [gender, setGender] = useState<ContactGender>("Male");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
@@ -41,6 +42,7 @@ function AddContactModal({
       setEmail("");
       setPhone("");
       setPinCode("");
+      setGender("Male");
       setError("");
     }
   }, [open]);
@@ -66,6 +68,7 @@ function AddContactModal({
         email: email.trim() || undefined,
         phone: [{ countryCode: 91, number: Number(digits), isPrimary: true }],
         pinCode: Number(pinCode),
+        gender,
       });
       onCreated();
       onClose();
@@ -137,6 +140,30 @@ function AddContactModal({
               className="w-full rounded-md border border-border px-3 py-2 text-sm"
             />
           </div>
+
+          <fieldset className="space-y-2">
+            <legend className="text-sm font-medium">Gender</legend>
+            <div className="flex flex-wrap gap-4">
+              {(["Male", "Female", "Other"] as const).map((value) => (
+                <label
+                  key={value}
+                  htmlFor={`contact-gender-${value.toLowerCase()}`}
+                  className="inline-flex cursor-pointer items-center gap-2 text-sm"
+                >
+                  <input
+                    id={`contact-gender-${value.toLowerCase()}`}
+                    type="radio"
+                    name="contact-gender"
+                    value={value}
+                    checked={gender === value}
+                    onChange={() => setGender(value)}
+                    className="h-4 w-4 accent-brand"
+                  />
+                  {value}
+                </label>
+              ))}
+            </div>
+          </fieldset>
 
           {error && (
             <p className="rounded-md bg-red-50 px-3 py-2 text-sm text-red-600">

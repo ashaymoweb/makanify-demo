@@ -45,11 +45,14 @@ export interface Contact {
   lastName?: string;
   email?: string;
   phone?: ContactPhone[];
+  gender?: ContactGender;
   companyName?: string;
   position?: string;
   createdAt?: string;
   updatedAt?: string;
 }
+
+export type ContactGender = "Male" | "Female" | "Other";
 
 export interface ContactListData {
   results: Contact[];
@@ -65,6 +68,7 @@ export interface CreateContactPayload {
   email?: string;
   phone: ContactPhone[];
   pinCode: number;
+  gender?: ContactGender;
   addressLine1?: string;
   addressLine2?: string;
   companyName?: string;
